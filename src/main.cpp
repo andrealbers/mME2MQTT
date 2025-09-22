@@ -107,8 +107,19 @@ void setup()
 			  { iotWebConf.handleConfig(); });
 	server.on("/reset", []()
 			  { needReset = true; });
-	server.on("/msg", []()
-			  { server.send(200, "application/json", publisher.jout); });
+	server.on("/msg", HTTP_GET, []()
+			  {
+				  server.sendHeader("Access-Control-Allow-Origin", "*");
+				  server.sendHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+				  server.sendHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+				  server.send(200, "application/json", publisher.jout); });
+	// Handle CORS preflight for /msg
+	server.on("/msg", HTTP_OPTIONS, []()
+			  {
+				  server.sendHeader("Access-Control-Allow-Origin", "*");
+				  server.sendHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+				  server.sendHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+				  server.send(204, "text/plain", ""); });
 	server.onNotFound([]()
 					  { iotWebConf.handleNotFound(); });
 
